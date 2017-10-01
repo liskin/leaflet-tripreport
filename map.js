@@ -29,16 +29,10 @@ layerPhoto.on('click', function (evt) {
 		minWidth: 300
 	}).openPopup();
 });
-/*var colorHash = new ColorHash({
-	lightness: 0.4,
-	saturation: 1,
-});*/
 var layerGpx = L.geoJSON(null, {
 	style: function(feature) {
 		var color = feature.properties.name.match('spaní') ? '#0000ff' : '#ff0000';
 		return {
-			//color: '#ff0000',
-			//color: colorHash.hex('x' + feature.properties.name),
 			color: color,
 			weight: 5,
 		};
