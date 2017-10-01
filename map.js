@@ -1,4 +1,4 @@
-(function(){
+function tripReport(data) {
 	var osmAttr = '&copy; <a href="http://openstreetmap.org" target="_blank">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/" target="_blank">CC-BY-SA</a>';
 	var mapyCzAttr = '&copy; <a href="https://www.seznam.cz/" target="_blank">Seznam.cz, a.s</a>, ' + osmAttr;
 	var thunderforestAttr = osmAttr + ', Tiles courtesy of <a href="http://www.thunderforest.com/" target="_blank">Andy Allan</a>';
@@ -14,11 +14,6 @@
 		L.tileLayer('https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png', {
 			maxZoom: 20, attribution: thunderforestAttr, id: 'OpenCycleMap'
 		});
-	var baseMaps = {
-		"mapy.cz": layerMapyCz,
-		"OpenStreetMap": layerOpenStreetMap,
-		"OpenCycleMap": layerOpenCycleMap,
-	};
 
 	var layerPhoto = L.photo.cluster({
 		spiderfyDistanceMultiplier: 2,
@@ -32,6 +27,8 @@
 			minWidth: 300,
 		}).openPopup();
 	});
+	layerPhoto.add(data.photos);
+
 	var layerGpx = L.featureGroup();
 	layerGpx.on('click', function (evt) {
 		var track = evt.layer.track;
@@ -41,10 +38,17 @@
 			className: 'leaflet-popup-photo',
 		}).openPopup();
 	});
-	var overlayMaps = {
-		"Photos": layerPhoto,
-		"Tracks": layerGpx,
-	};
+	data.tracks.forEach(function (track) {
+		var l = L.polyline(track.coords, {
+			weight: 5,
+			color: track.color,
+		});
+		l.track = {
+			name: track.name,
+			link: track.link,
+		};
+		layerGpx.addLayer(l);
+	});
 
 	var map = L.map('map', {
 		zoom: 9,
@@ -52,21 +56,16 @@
 		maxZoom: 18,
 		layers: [layerMapyCz, layerPhoto, layerGpx],
 	});
-	L.control.layers(baseMaps, overlayMaps).addTo(map);
+	map.fitBounds(layerPhoto.getBounds());
 
-	$.get('data.json', function (data) {
-		layerPhoto.add(data.photos);
-		data.tracks.forEach(function (track) {
-			var l = L.polyline(track.coords, {
-				weight: 5,
-				color: track.color,
-			});
-			l.track = {
-				name: track.name,
-				link: track.link,
-			};
-			layerGpx.addLayer(l);
-		});
-		map.fitBounds(layerPhoto.getBounds());
-	});
-})();
+	var baseMaps = {
+		"mapy.cz": layerMapyCz,
+		"OpenStreetMap": layerOpenStreetMap,
+		"OpenCycleMap": layerOpenCycleMap,
+	};
+	var overlayMaps = {
+		"Photos": layerPhoto,
+		"Tracks": layerGpx,
+	};
+	L.control.layers(baseMaps, overlayMaps).addTo(map);
+}

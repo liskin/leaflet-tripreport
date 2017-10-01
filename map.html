@@ -11,9 +11,15 @@
 	<script src="https://unpkg.com/leaflet@1.2.0/dist/leaflet.js"></script>
 	<script src="https://unpkg.com/leaflet.markercluster@1.1.0/dist/leaflet.markercluster.js"></script>
 	<script src="https://cdn.rawgit.com/turban/Leaflet.Photo/70689340f51239e22b8708bbdae541cbe4dcc736/Leaflet.Photo.js"></script>
-	<script src="https://code.jquery.com/jquery-3.2.1.min.js"></script>
 </head>
 <body>
 	<div id="map"></div>
 	<script src="map.js"></script>
+	<script>
+		(function(){
+			var s = document.createElement('script');
+			s.src = window.location.hash.slice(1);
+			document.body.appendChild(s);
+		})();
+	</script>
 </body>

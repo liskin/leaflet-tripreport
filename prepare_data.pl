@@ -20,6 +20,10 @@ sub to_json {
 	$json->encode(shift);
 }
 
+sub to_jsonp {
+	'tripReport(' . to_json(shift) . ');';
+}
+
 sub main {
 	my ($photos_xml, @tracks_gpx) = @_;
 
@@ -36,7 +40,7 @@ sub main {
 		photos => \@photos,
 	};
 
-	print to_json($output);
+	print to_jsonp($output);
 }
 
 # GPX from Strava
