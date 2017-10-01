@@ -46,6 +46,7 @@ sub prepare_track {
 	my $xml = from_xml(path($filename)->slurp_utf8);
 	my $trk = $xml->{gpx}->[0]->{trk}->[0];
 	my $name = $trk->{name}->[0];
+	my $link = $trk->{link}->[0]->{href};
 	my $color = $name =~ /spaní/ ? '#0000ff' : '#ff0000';
 	my @trkpts = map { @{$_->{trkpt}} } @{$trk->{trkseg}};
 	my @coords = map +{
@@ -59,7 +60,7 @@ sub prepare_track {
 		name => $name,
 		color => $color,
 		coords => [ map +[ $_->{lat}, $_->{lon} ], @coords ],
-		# TODO: Strava link
+		link => $link,
 	};
 }
 

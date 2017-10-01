@@ -33,6 +33,15 @@
 		}).openPopup();
 	});
 	var layerGpx = L.featureGroup();
+	layerGpx.on('click', function (evt) {
+		var track = evt.layer.track;
+		var template = '<a target="_blank" href="{link}">{name}</a>';
+
+		evt.layer.bindPopup(L.Util.template(template, track), {
+			className: 'leaflet-popup-photo',
+			//minWidth: 300,
+		}).openPopup();
+	});
 	var overlayMaps = {
 		"Photos": layerPhoto,
 		"Tracks": layerGpx,
@@ -49,10 +58,15 @@
 	$.get('data.json', function (data) {
 		layerPhoto.add(data.photos);
 		data.tracks.forEach(function (track) {
-			layerGpx.addLayer(L.polyline(track.coords, {
+			var l = L.polyline(track.coords, {
 				weight: 5,
 				color: track.color,
-			}));
+			});
+			l.track = {
+				name: track.name,
+				link: track.link,
+			};
+			layerGpx.addLayer(l);
 		});
 		map.fitBounds(layerPhoto.getBounds());
 	});
