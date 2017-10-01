@@ -39,7 +39,6 @@
 
 		evt.layer.bindPopup(L.Util.template(template, track), {
 			className: 'leaflet-popup-photo',
-			//minWidth: 300,
 		}).openPopup();
 	});
 	var overlayMaps = {
@@ -49,7 +48,7 @@
 
 	var map = L.map('map', {
 		zoom: 9,
-		center: [48.7259733, 16.7431633],
+		center: [49.7437572, 15.3386383],
 		maxZoom: 18,
 		layers: [layerMapyCz, layerPhoto, layerGpx],
 	});
