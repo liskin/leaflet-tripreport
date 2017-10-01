@@ -20,14 +20,16 @@
 		"OpenCycleMap": layerOpenCycleMap,
 	};
 
-	var layerPhoto = L.photo.cluster();
+	var layerPhoto = L.photo.cluster({
+		spiderfyDistanceMultiplier: 2,
+	});
 	layerPhoto.on('click', function (evt) {
 		var photo = evt.layer.photo;
 		var template = '<a target="_blank" href="{url}"><img src="{preview}"/></a>';
 
 		evt.layer.bindPopup(L.Util.template(template, photo), {
 			className: 'leaflet-popup-photo',
-			minWidth: 300
+			minWidth: 300,
 		}).openPopup();
 	});
 	var layerGpx = L.featureGroup();
