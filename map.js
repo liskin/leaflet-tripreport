@@ -44,8 +44,8 @@ var overlayMaps = {
 };
 
 var map = L.map('map', {
-	//zoom: 9,
-	//center: [48.7259733, 16.7431633],
+	zoom: 9,
+	center: [48.7259733, 16.7431633],
 	maxZoom: 18,
 	layers: [layerMapyCz, layerPhoto, layerGpx],
 });
