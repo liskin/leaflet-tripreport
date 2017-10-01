@@ -30,15 +30,7 @@
 			minWidth: 300
 		}).openPopup();
 	});
-	var layerGpx = L.geoJSON(null, {
-		style: function(feature) {
-			var color = feature.properties.name.match('spaní') ? '#0000ff' : '#ff0000';
-			return {
-				color: color,
-				weight: 5,
-			};
-    	}
-	});
+	var layerGpx = L.featureGroup();
 	var overlayMaps = {
 		"Photos": layerPhoto,
 		"Tracks": layerGpx,
@@ -60,7 +52,7 @@
 	- https://picasaweb.google.com/data/feed/api/user/113411333440293111262/albumid/6471621605834696945
 	- save as photos.xml
 	*/
-	$.get('photos.xml', function (data) {
+	$.get('photos.xml', null, null, 'xml').then(function (data) {
 		var photos = $(data).children('feed').children('entry').map(function () {
 			var photo = this;
 			var pos = $(photo).find('gml\\:pos').text().split(' ');
@@ -69,8 +61,8 @@
 			}
 			// TODO: brát ty pozice z gpx
 
-			var thumbnail = $(this).find('media\\:thumbnail[width=72],media\\:thumbnail[height=72]').attr('url');
-			var preview = $(this).find('media\\:thumbnail[width=288],media\\:thumbnail[height=288]').attr('url');
+			var thumbnail = $(photo).find('media\\:thumbnail[width=72],media\\:thumbnail[height=72]').attr('url');
+			var preview = $(photo).find('media\\:thumbnail[width=288],media\\:thumbnail[height=288]').attr('url');
 			var url = preview.replace('/s288/', '/s0/');
 
 			return {
@@ -81,18 +73,32 @@
 				url: url,
 			};
 		}).get();
-		//console.log(photos);
 		layerPhoto.add(photos);
 		map.fitBounds(layerPhoto.getBounds());
-	}, 'xml');
+	});
 
-	/*
-	- ogr2ogr -f GeoJSON output.json input.gpx tracks
-	*/
-	['den1a.json', 'den1b.json', 'den2a.json', 'den2b.json', 'den3.json'].forEach(function (name) {
-		$.get(name, function (data) {
-			layerGpx.addData(data);
-		}, 'json');
+	function parseGpx(gpx) {
+		var trk = $(gpx).children('gpx').children('trk').get(0);
+		var name = $(trk).children('name').text();
+		var trkpts = $(trk).children('trkseg').children('trkpt').get();
+		var coords = trkpts.map(function (trkpt) {
+			return [
+				1 * trkpt.getAttribute('lat'),
+				1 * trkpt.getAttribute('lon'),
+			];
+		});
+
+		return L.polyline(coords, {
+			color: name.match('spaní') ? '#0000ff' : '#ff0000',
+			weight: 5,
+		});
+
 		// TODO: link na stravu
+	}
+
+	['den1a.gpx', 'den1b.gpx', 'den2a.gpx', 'den2b.gpx', 'den3.gpx'].forEach(function (name) {
+		$.get(name, null, null, 'xml').then(function (data) {
+			layerGpx.addLayer(parseGpx(data));
+		});
 	});
 })();
