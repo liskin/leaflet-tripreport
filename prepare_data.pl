@@ -89,9 +89,10 @@ sub prepare_photo {
 	my $entry = shift;
 
 	my @thumbnails = map { @{$_->{'media:thumbnail'}} } @{$entry->{'media:group'}};
-	my ($thumbnail) = map { $_->{url} } grep { $_->{width} == 72 or $_->{height} == 72 } @thumbnails;
-	my ($preview) = map { $_->{url} } grep { $_->{width} == 288 or $_->{height} == 288 } @thumbnails;
-	my $url = $preview =~ s|/s288/|/s0/|r;
+	my $thumb_base = $thumbnails[0]->{url};
+	my $thumbnail = $thumb_base =~ s|/s(\d+)/|/s144/|r;
+	my $preview = $thumb_base =~ s|/s(\d+)/|/s360/|r;
+	my $url = $thumb_base =~ s|/s(\d+)/|/s0/|r;
 	my ($lat, $lon) = split(' ', $entry->{'georss:where'}->[0]->{'gml:Point'}->[0]->{'gml:pos'}->[0] // '');
 
 	{

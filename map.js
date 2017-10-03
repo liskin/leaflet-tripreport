@@ -16,7 +16,10 @@ function tripReport(data) {
 		});
 
 	var layerPhoto = L.photo.cluster({
-		spiderfyDistanceMultiplier: 2,
+		spiderfyDistanceMultiplier: 2.5,
+		icon: {
+			iconSize: [60, 60],
+		},
 	});
 	layerPhoto.on('click', function (evt) {
 		var photo = evt.layer.photo;
