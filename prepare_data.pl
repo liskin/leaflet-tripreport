@@ -12,7 +12,11 @@ use XML::Simple;
 use Data::Printer;
 
 sub from_xml {
-	return XMLin(shift, ForceArray => 1, KeyAttr => [], KeepRoot => 1);
+	XMLin(shift, ForceArray => 1, KeyAttr => [], KeepRoot => 1);
+}
+
+sub load_xml {
+	from_xml(path(shift)->slurp_utf8);
 }
 
 sub to_json {
@@ -27,8 +31,8 @@ sub to_jsonp {
 sub main {
 	my (@input_files) = @_;
 
-	my @photos_xml_inputs = grep(/photos.*xml$/, @input_files);
-	my @gpx_inputs = grep(/\.gpx$/, @input_files);
+	my @photos_xml_inputs = map { load_xml($_) } grep(/photos.*xml$/, @input_files);
+	my @gpx_inputs = map { load_xml($_) } grep(/\.gpx$/, @input_files);
 
 	my @all_locations;
 	my @tracks = map { prepare_tracks($_, \@all_locations) } @gpx_inputs;
@@ -47,11 +51,9 @@ sub main {
 }
 
 sub prepare_tracks {
-	my ($filename, $all_locations) = @_;
+	my ($gpx, $all_locations) = @_;
 
-	my $xml = from_xml(path($filename)->slurp_utf8);
-	my $trk = $xml->{gpx}->[0]->{trk};
-
+	my $trk = $gpx->{gpx}->[0]->{trk};
 	map { prepare_track($_, $all_locations) } @$trk;
 }
 
@@ -89,10 +91,10 @@ sub iso8601_to_timestamp {
 # - https://picasaweb.google.com/data/feed/api/user/113411333440293111262/albumid/6471621605834696945
 # - save as photos.xml
 sub prepare_photos {
-	my $filename = shift;
+	my $xml = shift;
 
-	my $xml = from_xml(path($filename)->slurp_utf8);
-	map { prepare_photo($_) } @{$xml->{feed}->[0]->{entry}};
+	my $entry = $xml->{feed}->[0]->{entry};
+	map { prepare_photo($_) } @$entry;
 }
 
 sub prepare_photo {
