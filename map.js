@@ -30,7 +30,7 @@ function tripReport(data) {
 			minWidth: 300,
 		}).openPopup();
 	});
-	layerPhoto.add(data.photos);
+	layerPhoto.add(data.photos ? data.photos : []);
 
 	var layerGpx = L.featureGroup();
 	layerGpx.on('click', function (evt) {
@@ -41,7 +41,7 @@ function tripReport(data) {
 			className: 'leaflet-popup-photo',
 		}).openPopup();
 	});
-	data.tracks.forEach(function (track) {
+	(data.tracks ? data.tracks : []).forEach(function (track) {
 		var l = L.polyline(track.coords, {
 			weight: 5,
 			color: track.color,
@@ -53,15 +53,48 @@ function tripReport(data) {
 		layerGpx.addLayer(l);
 	});
 
+	var layerWpt = L.featureGroup();
+	layerWpt.on('click', function (evt) {
+		var point = evt.layer.point;
+		var content = `<strong>${point.name}</strong>`;
+		if (point.osm) {
+			content += `<br/><a target="_blank" href="${point.osm}">More on OSM</a>`;
+		}
+		point.imgs.forEach(function (img) {
+			content += `<br/><a target="_blank" href="${img}"><img src="${img}"/></a>`;
+		});
+
+		evt.layer.bindPopup(content, {
+			className: 'leaflet-popup-photo',
+			minWidth: 200,
+		}).openPopup();
+	});
+	(data.points ? data.points : []).forEach(function (point) {
+		var icon = L.icon({
+			iconUrl: point.icon,
+		});
+		var l = L.marker(point.coords, {
+			title: point.name,
+			icon: icon,
+		});
+		l.point = {
+			name: point.name,
+			osm: point.osm,
+			imgs: point.imgs,
+		};
+		layerWpt.addLayer(l);
+	});
+
 	var map = L.map('map', {
 		zoom: 9,
 		center: [49.7437572, 15.3386383],
 		maxZoom: 18,
-		layers: [layerMapyCz, layerPhoto, layerGpx],
+		layers: [layerMapyCz, layerPhoto, layerGpx, layerWpt],
 	});
 	var bounds = L.latLngBounds([]);
 	bounds.extend(layerPhoto.getBounds());
 	bounds.extend(layerGpx.getBounds());
+	bounds.extend(layerWpt.getBounds());
 	if (bounds.isValid()) {
 		map.fitBounds(bounds);
 	}
@@ -74,6 +107,7 @@ function tripReport(data) {
 	var overlayMaps = {
 		"Photos": layerPhoto,
 		"Tracks": layerGpx,
+		"Points": layerWpt,
 	};
 	L.control.layers(baseMaps, overlayMaps).addTo(map);
 }
