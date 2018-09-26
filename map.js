@@ -31,9 +31,9 @@ function tripReport(data) {
 	});
 	layerPhoto.on('click', function (evt) {
 		var photo = evt.layer.photo;
-		var template = '<a target="_blank" href="{url}"><img src="{preview}"/></a>';
+		var content = `<a target="_blank" href="${photo.url}"><img src="${photo.preview}"/></a>`;
 
-		evt.layer.bindPopup(L.Util.template(template, photo), {
+		evt.layer.bindPopup(content, {
 			className: 'leaflet-popup-photo',
 			minWidth: 300,
 		}).openPopup();
@@ -43,9 +43,9 @@ function tripReport(data) {
 	var layerGpx = L.featureGroup();
 	layerGpx.on('click', function (evt) {
 		var track = evt.layer.track;
-		var template = '<a target="_blank" href="{link}">{name}</a>';
+		var content = `<a target="_blank" href="${track.link}">${track.name}</a>`;
 
-		evt.layer.bindPopup(L.Util.template(template, track), {
+		evt.layer.bindPopup(content, {
 			className: 'leaflet-popup-photo',
 		}).openPopup();
 	});
