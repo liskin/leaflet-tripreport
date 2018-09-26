@@ -104,14 +104,14 @@ sub prepare_point {
 	my @coords = ( 1 * $wpt->{lat}, 1 * $wpt->{lon} );
 	my $icon = "https://store.lisk.in/tmp/perm/leaflet-tripreport/sym/" . $wpt->{sym}->[0] . ".png";
 	my @links = map { $_->{href} } @{$wpt->{link}};
-	my ($osm) = grep(m|^http.*openstreetmap\.org/|, @links);
 	my @imgs = map { "https://store.lisk.in/tmp/perm/leaflet-tripreport/" . $_ } grep(m|^\./.*\.jpg$|, @links);
+	@links = grep(!m|^\./.*\.jpg$|, @links);
 
 	{
 		name => $name,
 		coords => \@coords,
 		icon => $icon,
-		osm => $osm,
+		links => \@links,
 		imgs => \@imgs,
 	};
 }

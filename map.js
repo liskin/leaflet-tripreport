@@ -65,9 +65,9 @@ function tripReport(data) {
 	layerWpt.on('click', function (evt) {
 		var point = evt.layer.point;
 		var content = `<strong>${point.name}</strong>`;
-		if (point.osm) {
-			content += `<br/><a target="_blank" href="${point.osm}">More on OSM</a>`;
-		}
+		point.links.forEach(function (link) {
+			content += `<br/><a target="_blank" href="${link}">${link}</a>`;
+		});
 		point.imgs.forEach(function (img) {
 			content += `<br/><a target="_blank" href="${img}"><img src="${img}"/></a>`;
 		});
@@ -87,7 +87,7 @@ function tripReport(data) {
 		});
 		l.point = {
 			name: point.name,
-			osm: point.osm,
+			links: point.links,
 			imgs: point.imgs,
 		};
 		layerWpt.addLayer(l);
