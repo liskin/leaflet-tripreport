@@ -25,11 +25,14 @@ sub to_jsonp {
 }
 
 sub main {
-	my ($photos_xml, @tracks_gpx) = @_;
+	my (@input_files) = @_;
+
+	my @photos_xml_inputs = grep(/photos.*xml$/, @input_files);
+	my @gpx_inputs = grep(/\.gpx$/, @input_files);
 
 	my @all_locations;
-	my @tracks = map { prepare_track($_, \@all_locations) } @tracks_gpx;
-	my @photos = prepare_photos($photos_xml);
+	my @tracks = map { prepare_tracks($_, \@all_locations) } @gpx_inputs;
+	my @photos = map { prepare_photos($_) } @photos_xml_inputs;
 
 	@all_locations = sort { $a->{timestamp} <=> $b->{timestamp} } @all_locations;
 	@photos = sort { $a->{timestamp} <=> $b->{timestamp} } @photos;
@@ -43,12 +46,19 @@ sub main {
 	print to_jsonp($output);
 }
 
-# GPX from Strava
-sub prepare_track {
+sub prepare_tracks {
 	my ($filename, $all_locations) = @_;
 
 	my $xml = from_xml(path($filename)->slurp_utf8);
-	my $trk = $xml->{gpx}->[0]->{trk}->[0];
+	my $trk = $xml->{gpx}->[0]->{trk};
+
+	map { prepare_track($_, $all_locations) } @$trk;
+}
+
+# GPX from Strava
+sub prepare_track {
+	my ($trk, $all_locations) = @_;
+
 	my $name = $trk->{name}->[0];
 	my $link = $trk->{link}->[0]->{href};
 	my $color = $name =~ /spaní/ ? '#0000ff' : '#ff0000';
