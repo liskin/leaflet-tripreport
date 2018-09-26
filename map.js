@@ -3,7 +3,7 @@ function tripReport(data) {
 	var mapyCzAttr = '&copy; <a href="https://www.seznam.cz/" target="_blank">Seznam.cz, a.s</a>, ' + osmAttr;
 	var thunderforestAttr = osmAttr + ', Tiles courtesy of <a href="http://www.thunderforest.com/" target="_blank">Andy Allan</a>';
 	var layerMapyCz =
-		L.tileLayer('https://mapserver.mapy.cz/1turist-m/{z}-{x}-{y}', {
+		L.tileLayer('https://mapserver.mapy.cz/turist-m/{z}-{x}-{y}', {
 			minZoom: 2, maxZoom: 20, maxNativeZoom: 18, attribution: mapyCzAttr, id: 'mapy.cz'
 		});
 	var layerOpenStreetMap =
