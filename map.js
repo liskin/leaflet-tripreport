@@ -59,7 +59,12 @@ function tripReport(data) {
 		maxZoom: 18,
 		layers: [layerMapyCz, layerPhoto, layerGpx],
 	});
-	map.fitBounds(layerPhoto.getBounds());
+	var bounds = L.latLngBounds([]);
+	bounds.extend(layerPhoto.getBounds());
+	bounds.extend(layerGpx.getBounds());
+	if (bounds.isValid()) {
+		map.fitBounds(bounds);
+	}
 
 	var baseMaps = {
 		"mapy.cz": layerMapyCz,
