@@ -6,6 +6,14 @@ function tripReport(data) {
 		L.tileLayer('https://mapserver.mapy.cz/turist-m/{z}-{x}-{y}', {
 			minZoom: 2, maxZoom: 20, maxNativeZoom: 18, attribution: mapyCzAttr, id: 'mapy.cz'
 		});
+	var layerMapyCzHybrid = L.layerGroup([
+		L.tileLayer('https://mapserver.mapy.cz/bing/{z}-{x}-{y}', {
+			minZoom: 2, maxZoom: 20, maxNativeZoom: 18, attribution: mapyCzAttr, id: 'mapy.cz'
+		}),
+		L.tileLayer('https://mapserver.mapy.cz/hybrid-trail_bike-m/{z}-{x}-{y}', {
+			minZoom: 2, maxZoom: 20, maxNativeZoom: 18, attribution: mapyCzAttr, id: 'mapy.cz'
+		}),
+	]);
 	var layerOpenStreetMap =
 		L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 			maxZoom: 20, maxNativeZoom: 19, attribution: osmAttr, id: 'OpenStreetMap'
@@ -101,6 +109,7 @@ function tripReport(data) {
 
 	var baseMaps = {
 		"mapy.cz": layerMapyCz,
+		"mapy.cz hybrid": layerMapyCzHybrid,
 		"OpenStreetMap": layerOpenStreetMap,
 		"OpenCycleMap": layerOpenCycleMap,
 	};
