@@ -96,6 +96,10 @@ sub prepare_points {
 sub prepare_point {
 	my ($wpt) = @_;
 
+	if (exists $wpt->{extensions}->[0]->{"locus:rtePointAction"}) {
+		return ();
+	}
+
 	my $name = $wpt->{name}->[0];
 	my @coords = ( 1 * $wpt->{lat}, 1 * $wpt->{lon} );
 	my $icon = "https://store.lisk.in/tmp/perm/leaflet-tripreport/sym/" . $wpt->{sym}->[0] . ".png";
