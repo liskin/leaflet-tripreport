@@ -102,7 +102,8 @@ sub prepare_point {
 
 	my $name = $wpt->{name}->[0];
 	my @coords = ( 1 * $wpt->{lat}, 1 * $wpt->{lon} );
-	my $icon = "https://store.lisk.in/tmp/perm/leaflet-tripreport/sym/" . $wpt->{sym}->[0] . ".png";
+	my $sym = $wpt->{sym}->[0]; $sym =~ s/\s/_/g;
+	my $icon = "https://store.lisk.in/tmp/perm/leaflet-tripreport/sym/" . $sym . ".png";
 	my @links = map { $_->{href} } @{$wpt->{link}};
 	my @imgs = map { "https://store.lisk.in/tmp/perm/leaflet-tripreport/" . $_ } grep(m|^\./.*\.jpg$|, @links);
 	@links = grep(!m|^\./.*\.jpg$|, @links);
