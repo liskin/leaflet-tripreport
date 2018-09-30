@@ -43,7 +43,7 @@ function tripReport(data) {
 	var layerGpx = L.featureGroup();
 	layerGpx.on('click', function (evt) {
 		var track = evt.layer.track;
-		var content = `<a target="_blank" href="${track.link}">${track.name}</a>`;
+		var content = track.link ? `<a target="_blank" href="${track.link}">${track.name}</a>` : `${track.name}`;
 
 		evt.layer.bindPopup(content, {
 			className: 'leaflet-popup-photo',
