@@ -65,7 +65,8 @@ sub prepare_track {
 
 	my $name = $trk->{name}->[0];
 	my $link = $trk->{link}->[0]->{href};
-	my $color = $name =~ /spaní/ ? '#0000ff' : '#ff0000';
+	my $gpx_color = $trk->{extensions}->[0]->{"gpx_style:line"}->[0]->{"gpx_style:color"}->[0];
+	my $color = $gpx_color ? "#$gpx_color" : ($name =~ /spaní/ ? '#0000ff' : '#ff0000');
 	my @trkpts = map { @{$_->{trkpt}} } @{$trk->{trkseg}};
 	my @coords = map +{
 		lat => 1 * $_->{lat},
