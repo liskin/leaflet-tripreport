@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8" />
+		<script type="text/javascript" src="https://api.mapy.cz/loader.js"></script>
+		<script type="text/javascript">Loader.lang = "cs"; Loader.load(null, {poi:true});</script>
+		<script type="text/javascript" src="https://cdn.jsdelivr.net/gh/eligrey/FileSaver.js@v2.0.2/dist/FileSaver.min.js"></script>
+		<style>
+			#dropbox {
+				border: solid 1px red;
+				width: 200px;
+				height: 200px;
+				text-align: center;
+				vertical-align: middle;
+				line-height: 200px;
+			}
+		</style>
+	</head>
+
+	<body>
+		<h3>Drop here:</h3>
+		<div id="dropbox">…</div>
+		<h3>POIs:</h3>
+		<ul id="pois"></ul>
+		<button id="export">Export GPX</button>
+
+		<script type="text/javascript">{
+			const poiServer = new SMap.POIServer.FRPC(SMap.CONFIG.base + '/poiagg');
+			const poiData = [];
+			const poiList = document.getElementById('pois');
+
+			const dropbox = document.getElementById('dropbox');
+			dropbox.addEventListener('dragenter', noopHandler, false);
+			dropbox.addEventListener('dragexit', noopHandler, false);
+			dropbox.addEventListener('dragover', noopHandler, false);
+			dropbox.addEventListener('drop', drop, false);
+
+			function noopHandler(evt) {
+				evt.stopPropagation();
+				evt.preventDefault();
+			}
+
+			function drop(evt) {
+				evt.stopPropagation();
+				evt.preventDefault();
+
+				const url = new URL(evt.dataTransfer.getData('URL'));
+				const source = url.searchParams.get('source');
+				const id = url.searchParams.get('id');
+				if (source && id) {
+					dropPoi(url, source, id);
+				}
+			}
+
+			function dropPoi(url, source, id) {
+				poiServer.getDetail(source, id, function (result) {
+					if (result.status == 200) {
+						dropPoiCallback(url, result.poi);
+					} else {
+						console.error(result);
+					}
+				});
+			}
+
+			function dropPoiCallback(url, poi) {
+				poi.href = url.href;
+				poiData.push(poi);
+
+				const li = document.createElement('li');
+				li.dataset.id = poi.id;
+				const a = document.createElement('a');
+				a.setAttribute('href', poi.href);
+				a.appendChild(document.createTextNode(poi.title));
+				li.appendChild(a);
+				poiList.appendChild(li);
+			}
+
+			const exportButton = document.getElementById('export');
+			exportButton.addEventListener('click', exportGpx, false);
+
+			function exportGpx() {
+				const dom = document.implementation.createDocument('http://www.topografix.com/GPX/1/1', 'gpx', null);
+				const gpx = dom.children[0];
+				// gpx.setAttributeNS( 'http://www.w3.org/2000/xmlns/', 'xmlns:locus', 'http://www.locusmap.eu' );
+				gpx.setAttributeNS( 'http://www.w3.org/2000/xmlns/', 'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance' );
+				gpx.setAttributeNS( 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation', 'http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd' );
+				gpx.setAttribute( 'version', '1.1' );
+				gpx.setAttribute( 'creator', 'mapy-poi-gpx' );
+
+				function elGpx(s) { return dom.createElement(s); }
+				// function elLocus(s) { return dom.createElementNS('http://www.locusmap.eu', 'locus:' + s); }
+				function text(s) { return dom.createTextNode(s); }
+				function cdata(s) { return dom.createCDATASection(s); }
+				function textGpx(s, t) { const n = elGpx(s); n.appendChild(text(t)); return n; }
+				function cdataGpx(s, t) { const n = elGpx(s); n.appendChild(cdata(t)); return n; }
+				// function textLocus(s, t) { const n = elLocus(s); n.appendChild(text(t)); return n; }
+
+				for (const poi of poiData) {
+					const wpt = elGpx('wpt');
+
+					wpt.setAttribute('lat', poi.mark.lat);
+					wpt.setAttribute('lon', poi.mark.lon);
+					wpt.appendChild(textGpx('name', poi.title));
+
+					const mapyLink = elGpx('link');
+					mapyLink.setAttribute('href', poi.href);
+					wpt.appendChild(mapyLink);
+
+					const desc = document.createDocumentFragment();
+					for (const photo of poi.gallery.flatMap((g) => g.media.map((m) => m.urls.default))) {
+						const url = new URL(photo.replace(/\{(width|height)\}/g, "500"), "https://mapy.cz/").href;
+
+						const img = document.createElement('img');
+						img.setAttribute('src', url);
+						img.setAttribute('width', '100%');
+						desc.appendChild(img);
+					}
+					wpt.appendChild(cdataGpx('desc', new XMLSerializer().serializeToString(desc)));
+
+					if (/přístřešek|kaple/i.test(poi.typeName)) { wpt.appendChild(textGpx('sym', 'Lodge')); }
+					if (/restaurace/i.test(poi.typeName)) { wpt.appendChild(textGpx('sym', 'Restaurant')); }
+
+					gpx.appendChild(wpt);
+				}
+
+				saveXml(dom);
+			}
+
+			function saveXml(dom) {
+				const data = '<?xml version="1.0" encoding="utf-8" standalone="yes" ?>' +
+					new XMLSerializer().serializeToString(dom);
+
+				const blob = new Blob([data], {type: 'application/gpx+xml;charset=utf-8'});
+				saveAs(blob, 'points.gpx');
+			}
+		}</script>
+	</body>
+</html>
