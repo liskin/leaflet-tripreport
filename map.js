@@ -78,13 +78,15 @@ function tripReport(data) {
 		}).openPopup();
 	});
 	(data.points ? data.points : []).forEach(function (point) {
-		var icon = L.icon({
-			iconUrl: point.icon,
-		});
-		var l = L.marker(point.coords, {
+		const opts = {
 			title: point.name,
-			icon: icon,
-		});
+		};
+		if (point.icon) {
+			opts.icon = L.icon({
+				iconUrl: point.icon,
+			});
+		}
+		var l = L.marker(point.coords, opts);
 		l.point = {
 			name: point.name,
 			links: point.links,

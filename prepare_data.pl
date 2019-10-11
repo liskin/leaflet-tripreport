@@ -71,9 +71,9 @@ sub prepare_track {
 	my @coords = map +{
 		lat => 1 * $_->{lat},
 		lon => 1 * $_->{lon},
-		timestamp => iso8601_to_timestamp($_->{time}->[0]),
+		defined($_->{time}->[0]) ? (timestamp => iso8601_to_timestamp($_->{time}->[0])) : (),
 	}, @trkpts;
-	push @$all_locations, @coords;
+	push @$all_locations, grep { defined($_->{timestamp}) } @coords;
 
 	{
 		name => $name,
@@ -103,16 +103,16 @@ sub prepare_point {
 
 	my $name = $wpt->{name}->[0];
 	my @coords = ( 1 * $wpt->{lat}, 1 * $wpt->{lon} );
-	my $sym = $wpt->{sym}->[0]; $sym =~ s/\s/_/g;
-	my $icon = "https://store.lisk.in/tmp/perm/leaflet-tripreport/sym/" . $sym . ".png";
+	my $sym = $wpt->{sym}->[0]; $sym =~ s/\s/_/g if defined($sym);
+	my $icon = defined($sym) ? "sym/" . $sym . ".png" : undef;
 	my @links = map { $_->{href} } @{$wpt->{link}};
-	my @imgs = map { "https://store.lisk.in/tmp/perm/leaflet-tripreport/" . $_ } grep(m|^\./.*\.jpg$|, @links);
+	my @imgs = grep(m|^\./.*\.jpg$|, @links);
 	@links = grep(!m|^\./.*\.jpg$|, @links);
 
 	{
 		name => $name,
 		coords => \@coords,
-		icon => $icon,
+		defined($icon) ? (icon => $icon) : (),
 		links => \@links,
 		imgs => \@imgs,
 	};
