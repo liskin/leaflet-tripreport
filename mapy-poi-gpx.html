@@ -107,7 +107,7 @@
 					wpt.appendChild(mapyLink);
 
 					const desc = document.createDocumentFragment();
-					for (const photo of poi.gallery.flatMap((g) => g.media.map((m) => m.urls.default))) {
+					for (const photo of (poi.gallery || []).flatMap((g) => (g.media || []).map((m) => m.urls.default))) {
 						const url = new URL(photo.replace(/\{(width|height)\}/g, "500"), "https://mapy.cz/").href;
 
 						const img = document.createElement('img');
@@ -119,6 +119,8 @@
 
 					if (/přístřešek|kaple/i.test(poi.typeName)) { wpt.appendChild(textGpx('sym', 'Lodge')); }
 					if (/restaurace/i.test(poi.typeName)) { wpt.appendChild(textGpx('sym', 'Restaurant')); }
+					if (/hospoda/i.test(poi.typeName)) { wpt.appendChild(textGpx('sym', 'Bar')); }
+					// TODO: "Pizza", "restaurant-coffee", "Campground"
 
 					gpx.appendChild(wpt);
 				}
