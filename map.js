@@ -99,7 +99,7 @@ function tripReport(data) {
 		zoom: 9,
 		center: [49.7437572, 15.3386383],
 		maxZoom: 18,
-		layers: [layerMapyCz, layerPhoto, layerGpx, layerWpt],
+		layers: [layerMapyCz, layerGpx, layerWpt],
 	});
 	var bounds = L.latLngBounds([]);
 	bounds.extend(layerPhoto.getBounds());
