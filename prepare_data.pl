@@ -59,6 +59,13 @@ sub prepare_tracks {
 	map { prepare_track($_, $all_locations) } @$trk;
 }
 
+sub next_color {
+	state @colors = ("#F30030", "#FF5C00", "#D100A3");
+	state $index = 0;
+
+	$colors[$index++ % @colors];
+}
+
 # GPX from Strava
 sub prepare_track {
 	my ($trk, $all_locations) = @_;
@@ -66,7 +73,7 @@ sub prepare_track {
 	my $name = $trk->{name}->[0];
 	my $link = $trk->{link}->[0]->{href};
 	my $gpx_color = $trk->{extensions}->[0]->{"gpx_style:line"}->[0]->{"gpx_style:color"}->[0];
-	my $color = $gpx_color ? "#$gpx_color" : ($name =~ /spaní/ ? '#0000ff' : '#ff0000');
+	my $color = $gpx_color ? "#$gpx_color" : next_color();
 	my @trkpts = map { @{$_->{trkpt}} } @{$trk->{trkseg}};
 	my @coords = map +{
 		lat => 1 * $_->{lat},
@@ -106,7 +113,8 @@ sub prepare_point {
 	my $sym = $wpt->{sym}->[0]; $sym =~ s/\s/_/g if defined($sym);
 	my $icon = defined($sym) ? "sym/" . $sym . ".png" : undef;
 	my @links = map { $_->{href} } @{$wpt->{link}};
-	my @imgs = grep(m|^\./.*\.jpg$|, @links);
+	my @descimgs = (($wpt->{desc}->[0] // "") =~ /<img\s[^<>]*src="(http\S+)"[^<>]*>/gi);
+	my @imgs = (grep(m|^\./.*\.jpg$|, @links), @descimgs);
 	@links = grep(!m|^\./.*\.jpg$|, @links);
 
 	{

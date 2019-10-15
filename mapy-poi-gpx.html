@@ -120,6 +120,8 @@
 					if (/přístřešek|kaple/i.test(poi.typeName)) { wpt.appendChild(textGpx('sym', 'Lodge')); }
 					if (/restaurace/i.test(poi.typeName)) { wpt.appendChild(textGpx('sym', 'Restaurant')); }
 					if (/hospoda/i.test(poi.typeName)) { wpt.appendChild(textGpx('sym', 'Bar')); }
+					if (/vlak/i.test(poi.typeName)) { wpt.appendChild(textGpx('sym', 'Railway')); }
+					if (/market/i.test(poi.typeName)) { wpt.appendChild(textGpx('sym', 'Shopping Center')); }
 					// TODO: "Pizza", "restaurant-coffee", "Campground"
 
 					gpx.appendChild(wpt);
